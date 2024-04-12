@@ -1,0 +1,21 @@
+Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: $'''C:\\Users\\admin\\Desktop\\emp details.xlsx''' Visible: True ReadOnly: False Instance=> ExcelInstance
+Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: $'''C:\\Users\\admin\\Desktop\\attuid data.xlsx''' Visible: True ReadOnly: False Instance=> ExcelInstance2
+Excel.GetFirstFreeColumnRow Instance: ExcelInstance FirstFreeColumn=> FirstFreeColumn FirstFreeRow=> FirstFreeRow
+Excel.GetFirstFreeColumnRow Instance: ExcelInstance2 FirstFreeColumn=> FirstFreeColumn2 FirstFreeRow=> FirstFreeRow2
+Excel.ReadFromExcel.ReadCells Instance: ExcelInstance StartColumn: 1 StartRow: 1 EndColumn: FirstFreeColumn - 1 EndRow: FirstFreeRow - 1 ReadAsText: False FirstLineIsHeader: True RangeValue=> Dataset1Data
+Excel.ReadFromExcel.ReadCells Instance: ExcelInstance2 StartColumn: 1 StartRow: 1 EndColumn: FirstFreeColumn2 - 1 EndRow: FirstFreeRow2 - 1 ReadAsText: False FirstLineIsHeader: True RangeValue=> Dataset2Data
+Excel.CloseExcel.Close Instance: ExcelInstance
+Excel.CloseExcel.Close Instance: ExcelInstance2
+Excel.LaunchExcel.LaunchUnderExistingProcess Visible: True Instance=> ExcelInstance3
+SET NewVar TO 2
+LOOP FOREACH CurrentItem IN Dataset1Data
+    SET NewVar2 TO CurrentItem
+    LOOP FOREACH CurrentItem2 IN Dataset2Data
+        IF NewVar2['Paycom ID'] = CurrentItem2['Employee ID'] AND CurrentItem2['USERNAME'] <> '' THEN
+            Excel.WriteToExcel.WriteCell Instance: ExcelInstance3 Value: NewVar2['Paycom ID'] Column: $'''A''' Row: NewVar
+            Excel.WriteToExcel.WriteCell Instance: ExcelInstance3 Value: CurrentItem2['USERNAME'] Column: $'''B''' Row: NewVar
+            Variables.IncreaseVariable Value: NewVar IncrementValue: 1
+        END
+    END
+END
+Excel.CloseExcel.CloseAndSaveAs Instance: ExcelInstance3 DocumentFormat: Excel.ExcelFormat.OpenXmlWorkbook DocumentPath: $'''FINAL_RESULTS'''
